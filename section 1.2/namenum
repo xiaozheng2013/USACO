@@ -1,0 +1,126 @@
+/*
+ID: fzhpand1
+PROG: namenum
+LANG: C++
+*/
+#include<iostream>
+#include<map>
+#include<fstream>
+#include<vector>
+#include<string>
+using namespace std;
+
+class dictionary
+{
+public:
+	int length;
+	vector<string> dict;
+	dictionary(vector<string> dict2)
+	{
+	   length = dict2.size();
+	   dict = dict2; 
+
+	}
+	
+	string operator[](int i) {
+	if(i>=0&&i<length) return dict[i];}
+	
+	int contain(string s)
+	{
+	   for(int i=0;i<length;i++)
+	   { if(s.compare( dict[i]) == 0) return 1; }
+	   return 0;
+
+	}
+};
+
+void print_name(dictionary* dict, map<char, char>& M,vector<char>& s, string name, int j,vector<string>& result)
+{
+	if(j > s.size()) {//cout<<"error"<<endl; 
+		return;}
+	else if(j == s.size()) 
+	{
+	   //cout<<name<<endl;
+	   if(dict->contain(name) == 1) result.push_back(name);// cout<<"the correct name is "<<name<<endl;
+	   return;
+	}
+	else 
+	{
+	   
+	   char tmp;
+	   tmp = M[s[j] + 0];
+	   print_name(dict,M,s,name+tmp,j+1,result);
+	   //if(j==s.size()-1) cout<<name+tmp<<endl;
+
+	   tmp = M[s[j] + 10];
+	   print_name(dict,M,s,name+tmp,j+1,result);
+	   //if(j==s.size()-1) cout<<name+tmp<<endl;
+	
+	   tmp = M[s[j] + 20];
+	   print_name(dict,M,s,name+tmp,j+1,result);
+	   //if(j==s.size()-1) cout<<name+tmp<<endl;
+	}
+}
+
+int main()
+{
+	
+	ifstream d2("namenum.in");
+	char c;	
+	vector<char> serial;
+	while(d2>>c) serial.push_back(c);
+	d2.close();
+
+	ifstream d1("dict.txt");
+	string b;
+	vector<string>	dict;
+	while(d1>>b){ if(b.size() == serial.size()) dict.push_back(b);}
+	dictionary *a = new dictionary(dict);
+	d1.close();
+
+	map<char,char> M;
+	M['2'] = 'A';
+	M['2' + 10] = 'B';
+	M['2' + 20] = 'C';
+
+	M['3'] = 'D';
+	M['3' + 10] = 'E';
+	M['3' + 20] = 'F';
+
+	M['4'] = 'G';
+	M['4' + 10] = 'H';
+	M['4' + 20] = 'I';
+
+	M['5'] = 'J';
+	M['5' + 10] = 'K';
+	M['5' + 20] = 'L';
+
+	M['6'] = 'M';
+	M['6' + 10] = 'N';
+	M['6' + 20] = 'O';
+
+	M['7'] = 'P';
+	M['7' + 10] = 'R';
+	M['7' + 20] = 'S';
+
+	M['8'] = 'T';
+	M['8' + 10] = 'U';
+	M['8' + 20] = 'V';
+
+	M['9'] = 'W';
+	M['9' + 10] = 'X';
+	M['9' + 20] = 'Y';
+
+	string name;
+	vector<string> result;
+	print_name(a,M,serial,name,0,result);
+	ofstream d3("namenum.out");
+	
+	if(result.size() == 0) d3<<"NONE"<<endl;
+	else
+	{
+	for(int i=0;i<result.size();i++) 
+	d3<<result[i]<<endl;
+	}
+}
+

@@ -1,0 +1,137 @@
+/*
+ID: fzhpand1
+PROG: transform
+LANG: C++
+*/
+#include<iostream>
+#include<fstream>
+using namespace std;
+
+class block{
+public:
+	int size;
+	block(int a){ 
+	   size = a; val = (char**)malloc(sizeof(int*)*size); 
+	   for(int i=0;i<size;i++)
+	   {
+		val[i] = (char*)malloc(sizeof(int)*size);
+
+	   }
+	}
+	char **val;	
+	
+	int operator==(const block a);
+	block*& rotation_270()
+	{
+	   block *temp = new block(size);
+	   for(int i=0;i<size;i++)
+		for(int j=0;j<size;j++)
+		   temp->val[size-j-1][i] = val[i][j];
+	   return temp;
+
+	}
+	
+	block*& rotation_180()
+	{
+	   block *temp = new block(size);
+	   for(int i=0;i<size;i++)
+		for(int j=0;j<size;j++)
+		   temp->val[size-i-1][size-j-1] = val[i][j];
+	   return temp;
+
+	}
+	
+	block*& rotation_90()
+	{
+	   block *temp = new block(size);
+	   for(int i=0;i<size;i++)
+		for(int j=0;j<size;j++)
+		   temp->val[j][size-i-1] = val[i][j];
+	   return temp;
+
+	}
+
+	block*& reflection()
+	{
+	   block *temp = new block(size);
+	   for(int i=0;i<size;i++)
+		for(int j=0;j<size;j++)
+		   temp->val[i][size-j-1] = val[i][j];
+	   return temp;
+
+	}
+
+	
+};
+
+int block::operator==(const block a)
+{
+	for(int i=0;i<size;i++)
+	{
+	   for(int j=0;j<size;j++)
+	   if(a.val[i][j] != val[i][j]) // what if we need to use operator [][]? how to code it? 
+		return 0;
+
+	}
+	return 1;
+	
+}
+
+int main()
+{
+	ifstream d1("transform.in");
+	int N;
+	d1>>N;
+	block *orig = new block(N);
+	block *result = new block(N);
+	for(int i=0;i<N;i++)
+	   for(int j=0;j<N;j++)
+	   {
+		char temp;
+		d1>>temp;
+	 	orig->val[i][j] = temp;
+	   }	
+	for(int i=0;i<N;i++)
+	   for(int j=0;j<N;j++)
+	   {
+		char temp;
+		d1>>temp;
+	 	result->val[i][j] = temp;
+	   }	
+	
+	int mark = 7;
+
+	block *r_90;;
+	r_90 = orig->rotation_90(); 
+	block *r_180;
+	r_180 = orig->rotation_180();
+	block *r_270;
+	r_270 = orig->rotation_270();
+	block *r_ref;
+	r_ref = orig->reflection();
+	if(*result == *r_90) mark = 1; 
+	else if(*result == *r_180) mark = 2;
+
+	else if(*result == *r_270) mark = 3;
+	else if(*result == *r_ref) mark = 4;
+	else{
+	   delete r_90;
+	   delete r_180;
+	   delete r_270;
+	   
+	   r_90 = r_ref->rotation_90();
+	   r_180 = r_ref->rotation_180();
+	   r_270 = r_ref->rotation_270();
+	   if(*result == *r_90 || *result == *r_180 || *result == *r_270)
+		mark = 5;
+
+	   else if(*result == *orig) mark = 6;
+	}
+//	cout<<"mark = "<<mark<<endl;
+	ofstream d2("transform.out");
+	d2<<mark<<endl;;
+
+
+
+
+}

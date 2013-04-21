@@ -1,0 +1,74 @@
+/*
+ID: fzhpand1
+PROG: barn1
+LANG: C++
+*/
+#include<iostream>
+#include<algorithm>
+#include<vector>
+#include<fstream>
+#include<math.h>
+using namespace std;
+
+int search(int a[],int N,int i)
+{
+	int tmp = a[i];
+	for(int j=i+1;j<N;j++)
+	{
+		if(a[j]!= tmp) { return j; }
+	}
+	return N;
+}
+
+int main()
+{
+	ifstream d1("barn1.in");
+	int M,S,C;
+	d1>>M>>S>>C;
+	int indicator[S];
+	for(int i=0;i<S;i++)
+		indicator[i] = 0;
+	int tmp;
+	for(int i=0;i<C;i++)
+	{
+		d1>>tmp;
+		indicator[tmp-1] = 1;
+	}
+	d1.close();
+
+	int i=0;
+	vector<int> gap;
+	int head,tail;
+	head = tail = 0;
+	while(i<S)
+	{
+		int a;
+		a = search(indicator,S,i);
+		if(indicator[i] == 0) 
+		{
+			if(i!=0&&a!=S) gap.push_back(a-i);
+			else if(i==0) 
+			{
+				head = a-i;
+				if(a == S) tail = 0;
+			}
+			if(a == S) 
+			{ 
+				if(i!=0) tail = a-i;
+			}
+ 
+		}
+		i = a;
+	}
+	// make decision on how many boards to buy
+	sort(gap.begin(),gap.end(),greater<int>());
+	int block;
+	tmp=0;
+	for(int i=0;i<min(int(M-1),int(gap.size()));i++) tmp += gap[i];
+	block = S-tmp-head-tail;
+
+	ofstream d2("barn1.out");
+	d2<<block<<endl;
+	d2.close();
+}
+

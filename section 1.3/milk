@@ -1,0 +1,65 @@
+/*
+ID: fzhpand1
+PROG: milk
+LANG: C++
+*/
+#include<iostream>
+#include<fstream>
+#include<algorithm>
+#include<vector>
+#include<map>
+using namespace std;
+
+class farmer{
+public:
+	int price;
+	int amount;
+	farmer(int i,int j) {price = i; amount = j;}	
+};
+
+bool compare(farmer i, farmer j)
+{ return (i.price<j.price); }
+
+int main()
+{
+	ifstream d1("milk.in");
+	int M,N;
+	d1>>N>>M;
+	
+	vector<int> a;
+	map<int,int> m;
+	vector<farmer> list;
+	int i1,i2;
+	for(int i=0;i<M;i++)
+	{
+		d1>>i1>>i2;
+		farmer *temp = new farmer(i1,i2);
+		list.push_back(*temp);
+	}
+	d1.close();
+
+	sort(list.begin(),list.end(),compare);
+	int amount,price;
+	amount = price = 0;
+	int i=0;
+	while(amount < N)
+	{
+		if(amount + list[i].amount <= N)
+		{
+			amount += list[i].amount;
+			price += list[i].price * list[i].amount;
+			i++;
+		}
+		else
+		{
+			price += list[i].price*(N-amount);
+			amount = N;
+			break;
+		}
+	}
+
+	ofstream d2("milk.out");
+	d2<<price<<endl;
+	d2.close();
+}
+
