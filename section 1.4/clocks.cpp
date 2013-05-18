@@ -4,53 +4,11 @@ PROG: clocks
 LANG: C++
 */
 #include<iostream>
+#include<algorithm>
 #include<fstream>
 #include<vector>
 
 using namespace std;
-
-class state{
-public:
-
-	vector<int> s;
-
-	state():s(9)
-	{
-	}
-
-	state(vector<int>& a);
-	
-	void move(vector<int> cls)
-	{
-		for(int i=0;i<cls.size();i++)
-		{
-			s[cls[i]] = (s[cls[i]] + 1)%4;
-		}
-	}
-	
-	void display()
-	{
-		for(int i=0;i<3;i++)
-		{
-		for(int j=0;j<3;j++)
-		{
-			cout<<s[i*3 + j]<<" ";
-		}
-		cout<<endl;
-		}
-	}
-
-	int operator==(const state b)
-	{
-		for(int i=0;i<9;i++)
-		{
-			if(s[i] != b.s[i])
-			return 0;
-		}
-		return 1;
-	}
-
-};
 
 class strategy{
 public:
@@ -84,6 +42,70 @@ public:
 	}
 };
 	
+
+class state{
+public:
+
+	vector<int> s;
+
+	state():s(9)
+	{
+	}
+
+	state(vector<int>& a);
+	
+	void move(vector<int> cls)
+	{
+		for(int i=0;i<cls.size();i++)
+		{
+			s[cls[i]] = (s[cls[i]] + 1)%4;
+		}
+	}
+
+	int qualify()
+	{
+		for(int i=0;i<9;i++)
+		if(s[i] != 0)
+		return 0;
+
+		return 1;
+	}
+	
+	void display()
+	{
+		for(int i=0;i<3;i++)
+		{
+			for(int j=0;j<3;j++)
+			{
+				cout<<s[i*3 + j]<<" ";
+			}
+			cout<<endl;
+		}
+	}
+
+	int operator==(const state b)
+	{
+		for(int i=0;i<9;i++)
+		{
+			if(s[i] != b.s[i])
+			return 0;
+		}
+		return 1;
+	}
+	
+	void apply_strategy( vector<vector<int> > &move_table, strategy a)
+	{
+		for(int i=0;i< 9; i++)
+		{
+			for(int j = 0;j<a.s[i];j++)
+			this->move(move_table[i]);
+			this->display();
+			cout<<endl;
+		}
+	}	
+
+};
+
 state::state(vector<int>& a):s(9)
 {
 	for(int i=0;i<9;i++)
@@ -127,7 +149,7 @@ void set_table(vector<vector<int> >& m)
 	t5[4] = 'H' - 'A';
 	m.push_back(t5);
 
-	vector<int> t6(4);
+	vector<int> t6(3);
 	t6[0] = 'C' - 'A'; t6[1] = 'F' - 'A'; t6[2] = 'I' - 'A'; 
 	m.push_back(t6);
 
@@ -136,19 +158,19 @@ void set_table(vector<vector<int> >& m)
 	m.push_back(t7);
 					
 	vector<int> t8(3);
-	t8[0] = 'E' - 'A'; t8[1] = 'H' - 'A'; t8[2] = 'I' - 'A'; 
+	t8[0] = 'G' - 'A'; t8[1] = 'H' - 'A'; t8[2] = 'I' - 'A'; 
 	m.push_back(t8);
 
 	vector<int> t9(4);
-	t9[0] = 'E' - 'A'; t9[1] = 'F' - 'A'; t9[2] = 'H' - 'A'; t9[3] = 'H' - 'A';
+	t9[0] = 'E' - 'A'; t9[1] = 'F' - 'A'; t9[2] = 'H' - 'A'; t9[3] = 'I' - 'A';
 	m.push_back(t9);
 
 }
 
-void find_result(state Init,state Obj,const vector< vector<int> > & move_table, 
+void find_result(state Init,const vector< vector<int> > & move_table, 
 						int i,vector<int> current_move,vector<strategy>& result)	
 {
-	if(Init == Obj)
+	if(Init.qualify() == 1)
 	{
 		strategy *tmp = new strategy(current_move);
 		result.push_back(*tmp);
@@ -156,41 +178,46 @@ void find_result(state Init,state Obj,const vector< vector<int> > & move_table,
 	else if(i<9)
 	{
 		current_move[i] = 0;		
-		find_result(Init,Obj,move_table,i+1,current_move, result);
+		find_result(Init,move_table,i+1,current_move, result);
 
 		current_move[i] = 1;
 		Init.move(move_table[i]);
-		find_result(Init,Obj,move_table,i+1,current_move, result);
+		find_result(Init,move_table,i+1,current_move, result);
 		
 		current_move[i] = 2;
 		Init.move(move_table[i]);
-		find_result(Init,Obj,move_table,i+1,current_move, result);
+		find_result(Init,move_table,i+1,current_move, result);
 		
 		current_move[i] = 3;
 		Init.move(move_table[i]);
-		find_result(Init,Obj,move_table,i+1,current_move, result);
+		find_result(Init,move_table,i+1,current_move, result);
 	
 
 	}
+	else return;
 		
 }
+
+bool my_func(strategy a, strategy b)
+{
+	return (a.length < b.length ||(a.length == b.length && a.size < b.size ));
+}
+
 
 int main()
 {
 	ifstream d1("clocks.in");
-//	ofstream d2("clocks.out");
+	ofstream d2("clocks.out");
 	
-	vector<int> init(9),obj(9);
+	vector<int> init(9);
 	int tmp;
 	for(int i=0;i<9;i++)
 	{
 		d1>>tmp;
 		init[i] = tmp;
-		obj[i] = 12;
 		
 	}
 	state *Init = new state(init);
-	state *Obj = new state(obj);
 //	Init->display();
 
 	vector<vector<int> > move_table;
@@ -199,12 +226,46 @@ int main()
 	
 	vector<strategy> result;
 	vector<int> current_move(9,0);
-	find_result(*Init,*Obj,move_table,0,current_move,result);	
+	find_result(*Init,move_table,0,current_move,result);	
 	
 	for(int i=0;i<result.size();i++)
 	{
 		result[i].display();
 	}
+	if(result.size() == 0) cout<<"no result"<<endl;
+	else 
+	sort(result.begin(),result.end(),my_func);
+
+	strategy *tmp1 = &(result[0]);
+	
+
+	int space_num = 0;
+	for(int i=0;i<9;i++)
+	{
+		for(int k=0;k<tmp1->s[i];k++)
+		{
+			d2<<i+1;
+			if(space_num<tmp1->size - 1) d2<<" ";
+			space_num++;
+		}
+	}
+	d2<<endl;	
+
+	vector<int> test(9,0);
+	for(int i=0;i<8;i++) test[i] = 2;
+	test[3] = test[6] = 3;
+	test[5] = test[8] = 1;
+
+	strategy *test_tmp = new strategy(test);
+
+	cout<<"Init is :"<<endl;
+	Init->display();
+//	Init->apply_strategy(move_table,result[0]);
+	Init->apply_strategy(move_table,*test_tmp);
+	cout<<"after the strategy, Init becomes :"<<endl;
+//	Init->display();
+	d1.close();
+	d2.close();
 	
 	return 0;
 
